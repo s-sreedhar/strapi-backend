@@ -32,7 +32,8 @@
     // Include all jsx files
     "./**/*.jsx",
     // Force the JSON files in the src folder to be included
-    "src/**/*.json"
+    "src/**/*.json",
+    "src/**/*", "types/**/*"
   ],
 
   "exclude": [

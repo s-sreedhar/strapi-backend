@@ -21,7 +21,7 @@ import {
   Badge,
   Field,
 } from '@strapi/design-system';
-import { Mail, Play, ArrowClockwise } from '@strapi/icons';
+import { Mail, Play, Refresh } from '@strapi/icons';
 import { useFetchClient } from '@strapi/strapi/admin';
 
 // Newsletter interface based on Strapi content type
@@ -306,7 +306,7 @@ const NewsletterApp: React.FC = () => {
           </Box>
           <Button
             onClick={loadNewsletters}
-            startIcon={<ArrowClockwise />}
+            startIcon={<Refresh />}
             variant="tertiary"
           >
             Refresh

@@ -8,8 +8,12 @@ import {
   Field,
   Flex,
   Alert,
+  FieldLabel,
+  FieldInput,
+  FieldError,
+  FieldHint,
 } from '@strapi/design-system';
-import { Magic, ArrowClockwise } from '@strapi/icons';
+import { Magic, Refresh } from '@strapi/icons'; // Changed ArrowClockwise to Refresh
 import { useFetchClient } from '@strapi/strapi/admin';
 
 interface GenerationResult {
@@ -97,7 +101,7 @@ const App: React.FC = () => {
           </Box>
           <Button
             onClick={handleClear}
-            startIcon={<ArrowClockwise />}
+            startIcon={<Refresh />}
             variant="tertiary"
           >
             Clear All
@@ -108,6 +112,11 @@ const App: React.FC = () => {
       {result && (
         <Box padding={4}>
           <Alert
+            action={
+              <Button variant="ghost" onClick={() => setResult(null)}>
+                Close
+              </Button>
+            }
             title={result.type === 'success' ? 'Success' : 'Error'}
             variant={result.type === 'success' ? 'success' : 'danger'}
             onClose={() => setResult(null)}
@@ -124,8 +133,9 @@ const App: React.FC = () => {
             Generate Content
           </Typography>
 
-          <Field.Root name="prompt" required>
-            <Field.Label>Prompt</Field.Label>
+          {/* Fixed Field structure */}
+          <Field.Root>
+            <FieldLabel>Prompt</FieldLabel>
             <Textarea
               name="prompt"
               value={prompt}
@@ -133,17 +143,17 @@ const App: React.FC = () => {
               placeholder="Enter your prompt here... (e.g., 'Write a blog post about sustainable technology')"
               rows={4}
             />
-            <Field.Error />
-            <Field.Hint>
+            <FieldError />
+            <FieldHint>
               Describe what kind of content you want to generate. Be specific for better results.
-            </Field.Hint>
+            </FieldHint>
           </Field.Root>
 
           <Box marginTop={4}>
             <Button
               onClick={handleGenerate}
               loading={loading}
-              startIcon={<Magic/>}
+              startIcon={<Magic />}
               variant="default"
               size="L"
               fullWidth
@@ -169,8 +179,9 @@ const App: React.FC = () => {
               </Button>
             </Flex>
 
-            <Field.Root name="generatedText">
-              <Field.Label>Generated Text</Field.Label>
+            {/* Fixed Field structure */}
+            <Field.Root>
+              <FieldLabel>Generated Text</FieldLabel>
               <Textarea
                 name="generatedText"
                 value={generatedText}
@@ -178,9 +189,9 @@ const App: React.FC = () => {
                 rows={20}
                 style={{ fontFamily: 'monospace', minHeight: '400px' }}
               />
-              <Field.Hint>
+              <FieldHint>
                 You can edit the generated text before copying or using it.
-              </Field.Hint>
+              </FieldHint>
             </Field.Root>
           </Box>
         )}
