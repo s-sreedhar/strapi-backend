@@ -7,7 +7,7 @@ export default {
       // Add your supported locales here
     ],
   },
-  register(app: StrapiApp) {
+  register(app: import('@strapi/strapi/admin').StrapiApp) {
     app.addMenuLink({
       to: '/plugins/newsletter',
       icon: Mail,
@@ -29,7 +29,7 @@ export default {
       name: 'Newsletter',
     });
   },
-  bootstrap(app: StrapiApp) {
+  bootstrap(app: import('@strapi/strapi/admin').StrapiApp) {
     console.log(app.features);
   },
 };

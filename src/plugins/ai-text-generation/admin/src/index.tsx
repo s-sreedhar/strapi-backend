@@ -1,11 +1,11 @@
 import type { StrapiApp } from '@strapi/strapi/admin';
-import { Sparkle } from '@strapi/icons';
+import { Magic } from '@strapi/icons';
 
 export default {
-  register(app: StrapiApp) {
+  register(app: import('@strapi/strapi/admin').StrapiApp) {
     app.addMenuLink({
       to: '/plugins/ai-text-generation',
-      icon: Sparkle,
+      icon: Magic,
       intlLabel: {
         id: 'ai-text-generation.title',
         defaultMessage: 'AI Text Generation',
@@ -24,7 +24,7 @@ export default {
       name: 'AI Text Generation',
     });
   },
-  bootstrap(app: StrapiApp) {
+  bootstrap(app: import('@strapi/strapi/admin').StrapiApp) {
     // console.log(app.features);
   },
 };

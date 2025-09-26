@@ -11,11 +11,20 @@ interface Subscriber {
   isActive: boolean;
 }
 
+interface SubscribeRequest {
+  email: string;
+  fullname?: string;
+}
+
+interface UpdateStatusRequest {
+  status: 'draft' | 'sent';
+}
+
 export default factories.createCoreController('api::newsletter.newsletter', ({ strapi }) => ({
   // Custom subscribe method
   async subscribe(ctx) {
     try {
-      const { email, fullname } = ctx.request.body as { email: string; fullname?: string };
+      const { email, fullname } = ctx.request.body as SubscribeRequest;
 
       // Validate required fields
       if (!email) {
@@ -90,7 +99,7 @@ export default factories.createCoreController('api::newsletter.newsletter', ({ s
   async updateStatus(ctx) {
     try {
       const { id } = ctx.params as { id: string };
-      const { status } = (ctx.request.body as any) as { status: 'draft' | 'sent' };
+      const { status } = ctx.request.body as UpdateStatusRequest;
 
       if (!id) {
         return ctx.badRequest('Missing newsletter id');
