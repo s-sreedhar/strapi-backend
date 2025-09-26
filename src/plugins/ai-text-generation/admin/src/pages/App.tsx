@@ -9,7 +9,6 @@ import {
   Flex,
   Alert,
   FieldLabel,
-  FieldInput,
   FieldError,
   FieldHint,
 } from '@strapi/design-system';
@@ -139,7 +138,7 @@ const App: React.FC = () => {
             <Textarea
               name="prompt"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
               placeholder="Enter your prompt here... (e.g., 'Write a blog post about sustainable technology')"
               rows={4}
             />
@@ -185,7 +184,7 @@ const App: React.FC = () => {
               <Textarea
                 name="generatedText"
                 value={generatedText}
-                onChange={(e) => setGeneratedText(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setGeneratedText(e.target.value)}
                 rows={20}
                 style={{ fontFamily: 'monospace', minHeight: '400px' }}
               />

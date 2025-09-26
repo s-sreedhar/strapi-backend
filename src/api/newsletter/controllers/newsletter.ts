@@ -1,7 +1,3 @@
-/**
- * newsletter controller
- */
-
 import { factories } from '@strapi/strapi';
 
 interface Subscriber {
@@ -21,39 +17,36 @@ interface UpdateStatusRequest {
 }
 
 export default factories.createCoreController('api::newsletter.newsletter', ({ strapi }) => ({
-  // Custom subscribe method
-  async subscribe(ctx) {
+  async subscribe(ctx: any) {
     try {
       const { email, fullname } = ctx.request.body as SubscribeRequest;
 
-      // Validate required fields
       if (!email) {
         return ctx.badRequest('Email is required');
       }
 
-      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return ctx.badRequest('Invalid email format');
       }
 
-      // Check if subscriber already exists
-      const existingSubscriber = await strapi.entityService.findMany('api::subscriber.subscriber', {
+      const existingSubscribers = await strapi.documents('api::subscriber.subscriber').findMany({
         filters: { email },
         limit: 1,
-      }) as any[];
+      });
 
-      if (existingSubscriber.length > 0) {
-        // If subscriber exists but is inactive, reactivate them
-        if (!existingSubscriber[0].isActive) {
-          const updatedSubscriber = await strapi.entityService.update('api::subscriber.subscriber', existingSubscriber[0].id, {
+      if (existingSubscribers && existingSubscribers.length > 0) {
+        const existingSubscriber = existingSubscribers[0];
+        if (!existingSubscriber.isActive) {
+          const updatedSubscriber = await strapi.documents('api::subscriber.subscriber').update({
+            documentId: existingSubscriber.documentId,
             data: {
               isActive: true,
-              fullname: fullname || existingSubscriber[0].fullname,
-              subscribedAt: new Date(),
+              fullname: fullname || existingSubscriber.fullname,
+              subscribedAt: new Date().toISOString(),
             },
           });
-          
+
           return ctx.send({
             message: 'Successfully reactivated your subscription!',
             data: {
@@ -65,20 +58,19 @@ export default factories.createCoreController('api::newsletter.newsletter', ({ s
           return ctx.send({
             message: 'You are already subscribed to our newsletter!',
             data: {
-              email: existingSubscriber[0].email,
-              isActive: existingSubscriber[0].isActive,
+              email: existingSubscriber.email,
+              isActive: existingSubscriber.isActive,
             },
           });
         }
       }
 
-      // Create new subscriber
-      const newSubscriber = await strapi.entityService.create('api::subscriber.subscriber', {
+      const newSubscriber = await strapi.documents('api::subscriber.subscriber').create({
         data: {
           email,
           fullname: fullname || 'Anonymous',
           isActive: true,
-          subscribedAt: new Date(),
+          subscribedAt: new Date().toISOString(),
         },
       });
 
@@ -94,46 +86,110 @@ export default factories.createCoreController('api::newsletter.newsletter', ({ s
       return ctx.internalServerError('Failed to process subscription. Please try again later.');
     }
   },
-  
-  // Update newsletter status and sentAt safely via entityService
-  async updateStatus(ctx) {
+
+  async updateStatus(ctx: any) {
     try {
-      const { id } = ctx.params as { id: string };
+      const { id } = ctx.params;
       const { status } = ctx.request.body as UpdateStatusRequest;
 
       if (!id) {
         return ctx.badRequest('Missing newsletter id');
       }
       if (!status || (status !== 'draft' && status !== 'sent')) {
-        return ctx.badRequest('Invalid status');
+        return ctx.badRequest('Invalid status. Must be either "draft" or "sent"');
       }
 
-      // Ensure entity exists
-      const existing = await strapi.entityService.findOne('api::newsletter.newsletter', Number(id), {
-        fields: ['id', 'docStatus', 'sentAt']
+      const existing = await strapi.documents('api::newsletter.newsletter').findOne({
+        documentId: id,
       });
+
       if (!existing) {
         return ctx.notFound('Newsletter not found');
       }
 
-      const updated = await strapi.entityService.update('api::newsletter.newsletter', Number(id), {
+      const updated = await strapi.documents('api::newsletter.newsletter').update({
+        documentId: id,
         data: {
           docStatus: status,
-          sentAt: status === 'sent' ? new Date() : null,
-        }
+          sentAt: status === 'sent' ? new Date().toISOString() : null,
+        },
       });
 
       return ctx.send({
-        message: 'Status updated',
+        message: 'Status updated successfully',
         data: {
           id: updated.id,
+          documentId: updated.documentId,
           docStatus: updated.docStatus,
           sentAt: updated.sentAt,
-        }
+        },
       });
     } catch (error) {
       console.error('Update newsletter status error:', error);
       return ctx.internalServerError('Failed to update status');
     }
+  },
+
+  async find(ctx: any) {
+    const sanitizedQuery = await this.sanitizeQuery(ctx);
+    const results = await strapi.documents('api::newsletter.newsletter').findMany(sanitizedQuery);
+    const sanitizedResults = await this.sanitizeOutput(results, ctx);
+
+    return this.transformResponse(sanitizedResults);
+  },
+
+  async findOne(ctx: any) {
+    const { id } = ctx.params;
+    const sanitizedQuery = await this.sanitizeQuery(ctx);
+
+    const result = await strapi.documents('api::newsletter.newsletter').findOne({
+      documentId: id,
+      ...sanitizedQuery,
+    });
+
+    const sanitizedResult = await this.sanitizeOutput(result, ctx);
+    return this.transformResponse(sanitizedResult);
+  },
+
+  async create(ctx: any) {
+    const sanitizedData = (await this.sanitizeInput(ctx.request.body, ctx)) as object | undefined;
+
+    const result = await strapi.documents('api::newsletter.newsletter').create({
+      data: {
+        ...(sanitizedData || {}),
+        docStatus: 'draft',
+        // Provide fallback values for required fields if missing
+        title: (sanitizedData as any)?.title ?? 'Untitled Newsletter',
+        subject: (sanitizedData as any)?.subject ?? 'No Subject',
+        content: (sanitizedData as any)?.content ?? '',
+      },
+    });
+
+    const sanitizedResult = await this.sanitizeOutput(result, ctx);
+    return this.transformResponse(sanitizedResult);
+  },
+
+  async update(ctx: any) {
+    const { id } = ctx.params;
+    const sanitizedData = (await this.sanitizeInput(ctx.request.body, ctx)) as object | undefined;
+
+    const result = await strapi.documents('api::newsletter.newsletter').update({
+      documentId: id,
+      data: sanitizedData || {},
+    });
+
+    const sanitizedResult = await this.sanitizeOutput(result, ctx);
+    return this.transformResponse(sanitizedResult);
+  },
+
+  async delete(ctx: any) {
+    const { id } = ctx.params;
+
+    const result = await strapi.documents('api::newsletter.newsletter').delete({
+      documentId: id,
+    });
+
+    const sanitizedResult = await this.sanitizeOutput(result, ctx);
+    return this.transformResponse(sanitizedResult);
   },
 }));

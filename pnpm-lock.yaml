@@ -75,6 +75,9 @@ importers:
       typescript:
         specifier: ^5
         version: 5.9.2
+      vite:
+        specifier: ^5.4.19
+        version: 5.4.19(@types/node@20.19.17)(terser@5.44.0)
 
 packages:
 
