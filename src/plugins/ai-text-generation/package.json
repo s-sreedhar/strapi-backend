@@ -1,0 +1,30 @@
+{
+  "name": "strapi-plugin-ai-text-generation",
+  "version": "1.0.0",
+  "description": "AI text generation custom field plugin for Strapi 5 powered by OpenAI",
+  "main": "strapi-server.js",
+  "keywords": [
+    "strapi",
+    "plugin",
+    "custom-field",
+    "ai-text-generation", 
+    "openai",
+    "ai"
+  ],
+  "scripts": {
+    "build": "strapi-plugin build",
+    "watch": "strapi-plugin watch"
+  },
+  "dependencies": {
+    "openai": "^4.57.0"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=22.x.x"
+  },
+  "strapi": {
+    "displayName": "AI Text Generation",
+    "name": "ai-text-generation",
+    "description": "Generate text content using AI through a custom field",
+    "kind": "plugin"
+  }
+}

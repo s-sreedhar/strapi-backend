@@ -1,0 +1,70 @@
+<!-- HTML for static distribution bundle build --><!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Swagger UI</title>
+    <link rel="stylesheet" type="text/css" href="/plugins/documentation/swagger-ui.css">
+    <link rel="icon" type="image/png" href="/plugins/documentation/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/plugins/documentation/favicon-16x16.png" sizes="16x16">
+    <style>
+      html {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      body {
+        margin: 0;
+        background: #fafafa;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+    <script class="custom-swagger-ui">
+      window.onload = function() {
+        // Initialize Swagger UI with proper error handling
+        try {
+          const ui = SwaggerUIBundle({
+            url: "/documentation/1.0.0/full_documentation.json",
+            dom_id: '#swagger-ui',
+            docExpansion: "none",
+            deepLinking: true,
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout",
+            validatorUrl: null,
+            tryItOutEnabled: true,
+            supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+            onComplete: function() {
+              console.log('Swagger UI loaded successfully');
+            },
+            onFailure: function(error) {
+              console.error('Swagger UI failed to load:', error);
+            }
+          });
+
+          window.ui = ui;
+        } catch (error) {
+          console.error('Error initializing Swagger UI:', error);
+          document.getElementById('swagger-ui').innerHTML = '<div style="padding: 20px; text-align: center;"><h2>Documentation Loading Error</h2><p>There was an error loading the API documentation. Please check the console for details.</p></div>';
+        }
+      }
+    </script>
+
+    <script src="/plugins/documentation/swagger-ui-bundle.js"></script>
+    <script src="/plugins/documentation/swagger-ui-standalone-preset.js"></script>
+  </body>
+</html>
